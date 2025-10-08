@@ -1,0 +1,208 @@
+{
+  "info": {
+    "name": "Scholarship App API",
+    "_postman_id": "b2f8cbd3-3f3e-44e4-a6f7-d7b649e0d0d5",
+    "description": "Collection for testing Scholarship App API (auth, scholarships, visas, testimonials). Uses cookie-based JWT authentication.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "http://localhost:5000/api/auth/register",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "auth", "register"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "http://localhost:5000/api/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Logout User",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "http://localhost:5000/api/auth/logout",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Scholarships",
+      "item": [
+        {
+          "name": "Create Scholarship",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "http://localhost:5000/api/scholarships",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "scholarships"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "institution",
+                  "value": "Harvard University",
+                  "type": "text"
+                },
+                {
+                  "key": "title",
+                  "value": "Harvard Fully Funded Scholarship",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Covers tuition, living, stipend",
+                  "type": "text"
+                },
+                { "key": "hostCountry", "value": "USA", "type": "text" },
+                { "key": "category", "value": "Undergraduate", "type": "text" },
+                {
+                  "key": "eligibleCountries",
+                  "value": "[\"Nigeria\",\"Kenya\",\"India\"]",
+                  "type": "text"
+                },
+                { "key": "reward", "value": "Full Tuition", "type": "text" },
+                {
+                  "key": "stipend",
+                  "value": "2000 USD monthly",
+                  "type": "text"
+                },
+                { "key": "deadline", "value": "2025-12-31", "type": "text" },
+                { "key": "healthInsurance", "value": "true", "type": "text" },
+                { "key": "ielts", "value": "false", "type": "text" },
+                { "key": "fullyFunded", "value": "true", "type": "text" },
+                { "key": "image", "type": "file", "src": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Scholarships",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:5000/api/scholarships",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "scholarships"]
+            }
+          }
+        },
+        {
+          "name": "Get Single Scholarship",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:5000/api/scholarships/:id",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "scholarships", ":id"]
+            }
+          }
+        },
+        {
+          "name": "Update Scholarship",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "http://localhost:5000/api/scholarships/:id",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "scholarships", ":id"]
+            }
+          }
+        },
+        {
+          "name": "Delete Scholarship",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "http://localhost:5000/api/scholarships/:id",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "scholarships", ":id"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Visas",
+      "item": [
+        {
+          "name": "Get All Visas",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:5000/api/visas",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "visas"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Testimonials",
+      "item": [
+        {
+          "name": "Get All Testimonials",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:5000/api/testimonials",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "testimonials"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
