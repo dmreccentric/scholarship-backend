@@ -2,24 +2,26 @@ const express = require("express");
 const router = express.Router();
 const testimonialController = require("../controllers/testimonialController");
 const { protect, authorize } = require("../controllers/authController");
-const upload = require("../middlewares/uploadTestimonial");
+const { uploadFields } = require("../middlewares/uploadTestimonial");
 
-// Use 'media' here to match frontend
+// Create testimonial (users)
 router.post(
   "/",
   protect,
-  upload.single("media"),
+  uploadFields,
   testimonialController.createTestimonial
 );
 
+// Update testimonial (admin)
 router.put(
   "/:id",
   protect,
   authorize("admin"),
-  upload.single("media"),
+  uploadFields,
   testimonialController.updateTestimonial
 );
 
+// Delete testimonial (admin)
 router.delete(
   "/:id",
   protect,
@@ -27,6 +29,7 @@ router.delete(
   testimonialController.deleteTestimonial
 );
 
+// Public
 router.get("/", testimonialController.getTestimonials);
 router.get("/:id", testimonialController.getTestimonial);
 

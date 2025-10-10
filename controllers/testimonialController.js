@@ -1,17 +1,28 @@
 const Testimonial = require("../models/Testimonials");
 const asyncHandler = require("../middlewares/asyncHandler");
+const { cloudinary } = require("../middlewares/uploadTestimonial");
 const mongoose = require("mongoose");
 
-// Create Testimonial
+// Create testimonial
 exports.createTestimonial = asyncHandler(async (req, res) => {
   const data = req.body;
   data.createdBy = req.user._id;
 
-  if (req.file) {
+  if (req.files?.profilePicture?.[0]) {
+    const file = req.files.profilePicture[0];
+    data.profilePicture = {
+      url: file.path || file.secure_url,
+      public_id: file.filename || file.public_id,
+      resource_type: "image",
+    };
+  }
+
+  if (req.files?.media?.[0]) {
+    const file = req.files.media[0];
     data.media = {
-      url: req.file.path,
-      public_id: req.file.filename,
-      resource_type: req.file.mimetype.startsWith("video/") ? "video" : "image",
+      url: file.path || file.secure_url,
+      public_id: file.filename || file.public_id,
+      resource_type: file.mimetype?.startsWith("video/") ? "video" : "image",
     };
   }
 
@@ -19,39 +30,13 @@ exports.createTestimonial = asyncHandler(async (req, res) => {
   res.status(201).json({ success: true, data: testimonial });
 });
 
-// Get all testimonials (with pagination/filter)
-// Get all testimonials (with pagination/filter)
+// Get all testimonials (public)
 exports.getTestimonials = asyncHandler(async (req, res) => {
-  // ✅ Parse numeric pagination parameters
-  const page = parseInt(req.query.page, 10) || 1;
-  const limit = parseInt(req.query.limit, 10) || 20;
-
-  const { approved } = req.query;
-  const query = {};
-
-  if (approved !== undefined) query.approved = approved === "true";
-
-  // ✅ Count total documents
-  const total = await Testimonial.countDocuments(query);
-
-  // ✅ Fetch paginated results
-  const items = await Testimonial.find(query)
+  const testimonials = await Testimonial.find()
     .populate("createdBy", "name email")
-    .sort({ createdAt: -1 })
-    .skip((page - 1) * limit)
-    .limit(limit);
+    .sort({ createdAt: -1 });
 
-  const totalPages = Math.ceil(total / limit);
-
-  res.json({
-    success: true,
-    count: items.length,
-    total,
-    totalPages,
-    currentPage: page,
-    limit,
-    data: items,
-  });
+  res.json({ success: true, count: testimonials.length, data: testimonials });
 });
 
 // Get single testimonial
@@ -64,62 +49,73 @@ exports.getTestimonial = asyncHandler(async (req, res) => {
     throw err;
   }
 
-  const item = await Testimonial.findById(id).populate(
+  const testimonial = await Testimonial.findById(id).populate(
     "createdBy",
     "name email"
   );
 
-  if (!item) {
+  if (!testimonial) {
     const err = new Error("Testimonial not found");
     err.statusCode = 404;
     throw err;
   }
 
-  res.json({ success: true, data: item });
+  res.json({ success: true, data: testimonial });
 });
 
-// Update Testimonial
+// Update testimonial
 exports.updateTestimonial = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const update = { ...req.body };
 
-  if (req.file) {
-    update.media = {
-      url: req.file.path,
-      public_id: req.file.filename,
-      resource_type: req.file.mimetype.startsWith("video/") ? "video" : "image",
+  if (req.files?.profilePicture?.[0]) {
+    const file = req.files.profilePicture[0];
+    update.profilePicture = {
+      url: file.path,
+      public_id: file.filename,
+      resource_type: "image",
     };
   }
 
-  const item = await Testimonial.findByIdAndUpdate(id, update, {
+  if (req.files?.media?.[0]) {
+    const file = req.files.media[0];
+    update.media = {
+      url: file.path,
+      public_id: file.filename,
+      resource_type: file.mimetype.startsWith("video/") ? "video" : "image",
+    };
+  }
+
+  const testimonial = await Testimonial.findByIdAndUpdate(id, update, {
     new: true,
     runValidators: true,
   });
 
-  if (!item) throw new Error("Testimonial not found");
-
-  res.json({ success: true, data: item });
+  if (!testimonial) throw new Error("Testimonial not found");
+  res.json({ success: true, data: testimonial });
 });
 
 // Delete testimonial
 exports.deleteTestimonial = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const item = await Testimonial.findByIdAndDelete(id);
+  const testimonial = await Testimonial.findByIdAndDelete(id);
 
-  if (!item) {
+  if (!testimonial) {
     const err = new Error("Testimonial not found");
     err.statusCode = 404;
     throw err;
   }
 
-  if (item.media && item.media.public_id) {
-    try {
-      const { cloudinary } = require("../middlewares/uploadTestimonial");
-      await cloudinary.uploader.destroy(item.media.public_id, {
-        resource_type: item.media.resource_type || "image",
-      });
-    } catch (e) {
-      console.warn("Could not delete cloudinary media:", e.message);
+  // Delete cloudinary media
+  for (const field of ["media", "profilePicture"]) {
+    if (testimonial[field]?.public_id) {
+      try {
+        await cloudinary.uploader.destroy(testimonial[field].public_id, {
+          resource_type: testimonial[field].resource_type || "image",
+        });
+      } catch (e) {
+        console.warn(`Could not delete ${field}:`, e.message);
+      }
     }
   }
 

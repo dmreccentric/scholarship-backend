@@ -1,4 +1,3 @@
-// middlewares/uploadTestimonial.js
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("cloudinary").v2;
@@ -20,4 +19,11 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage });
 
-module.exports = upload; // export multer instance directly
+// ✅ Export multer fields + cloudinary instance
+module.exports = {
+  uploadFields: upload.fields([
+    { name: "media", maxCount: 1 },
+    { name: "profilePicture", maxCount: 1 },
+  ]),
+  cloudinary,
+};
