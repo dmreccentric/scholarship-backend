@@ -20,20 +20,38 @@ exports.createTestimonial = asyncHandler(async (req, res) => {
 });
 
 // Get all testimonials (with pagination/filter)
+// Get all testimonials (with pagination/filter)
 exports.getTestimonials = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 20, approved } = req.query;
+  // ✅ Parse numeric pagination parameters
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 20;
+
+  const { approved } = req.query;
   const query = {};
 
   if (approved !== undefined) query.approved = approved === "true";
 
+  // ✅ Count total documents
   const total = await Testimonial.countDocuments(query);
+
+  // ✅ Fetch paginated results
   const items = await Testimonial.find(query)
     .populate("createdBy", "name email")
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
-    .limit(parseInt(limit));
+    .limit(limit);
 
-  res.json({ success: true, count: items.length, total, data: items });
+  const totalPages = Math.ceil(total / limit);
+
+  res.json({
+    success: true,
+    count: items.length,
+    total,
+    totalPages,
+    currentPage: page,
+    limit,
+    data: items,
+  });
 });
 
 // Get single testimonial
@@ -94,12 +112,14 @@ exports.deleteTestimonial = asyncHandler(async (req, res) => {
     throw err;
   }
 
-  if (item.image && item.image.public_id) {
+  if (item.media && item.media.public_id) {
     try {
-      const { cloudinary } = require("../middlewares/upload");
-      await cloudinary.uploader.destroy(item.image.public_id);
+      const { cloudinary } = require("../middlewares/uploadTestimonial");
+      await cloudinary.uploader.destroy(item.media.public_id, {
+        resource_type: item.media.resource_type || "image",
+      });
     } catch (e) {
-      console.warn("Could not delete cloudinary image:", e.message);
+      console.warn("Could not delete cloudinary media:", e.message);
     }
   }
 

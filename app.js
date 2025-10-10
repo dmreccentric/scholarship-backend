@@ -10,6 +10,8 @@ const authRoutes = require("./routes/auth");
 const scholarshipRoutes = require("./routes/scholarship");
 const visaRoutes = require("./routes/visa");
 const testimonialRoutes = require("./routes/testimonial");
+const clientRoutes = require("./routes/clientRoutes");
+
 const errorHandler = require("./middlewares/errorHandler");
 const corOptions = require("./config/corOptions");
 const PORT = process.env.PORT;
@@ -25,6 +27,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/scholarships", scholarshipRoutes);
 app.use("/api/visas", visaRoutes);
 app.use("/api/testimonials", testimonialRoutes);
+app.use("/api/clients", clientRoutes);
 
 // error handler last
 app.use(errorHandler);

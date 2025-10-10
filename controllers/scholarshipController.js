@@ -30,15 +30,11 @@ exports.createScholarship = asyncHandler(async (req, res) => {
   res.status(201).json({ success: true, data: scholarship });
 });
 
-// Get all scholarships with filters & pagination
+// ✅ Get all scholarships with filters & pagination
 exports.getScholarships = asyncHandler(async (req, res) => {
-  const {
-    page = 1,
-    limit = 20,
-    hostCountry,
-    category,
-    fullyFunded,
-  } = req.query;
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 20;
+  const { hostCountry, category, fullyFunded } = req.query;
 
   const query = {};
   if (hostCountry) query.hostCountry = hostCountry;
@@ -46,13 +42,24 @@ exports.getScholarships = asyncHandler(async (req, res) => {
   if (fullyFunded !== undefined) query.fullyFunded = fullyFunded === "true";
 
   const total = await Scholarship.countDocuments(query);
+
   const items = await Scholarship.find(query)
     .populate("createdBy", "name email")
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
-    .limit(parseInt(limit));
+    .limit(limit);
 
-  res.json({ success: true, count: items.length, total, data: items });
+  const totalPages = Math.ceil(total / limit);
+
+  res.json({
+    success: true,
+    count: items.length,
+    total,
+    totalPages,
+    currentPage: page,
+    limit,
+    data: items,
+  });
 });
 
 // Get single scholarship

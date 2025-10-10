@@ -4,7 +4,7 @@ const testimonialSchema = new mongoose.Schema(
   {
     name: { type: String, required: true }, // name of person giving testimonial
     message: { type: String, required: true },
-    image: {
+    media: {
       url: String,
       public_id: String,
       resource_type: {
