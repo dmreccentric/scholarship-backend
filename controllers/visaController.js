@@ -27,36 +27,27 @@ exports.createVisa = asyncHandler(async (req, res) => {
   res.status(201).json({ success: true, data: visa });
 });
 
-// Get all Visas
+// Get all Visas (with flexible query)
 exports.getVisas = asyncHandler(async (req, res) => {
-  // ✅ Parse numeric pagination parameters
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 20;
-
   const { country } = req.query;
-  const query = {};
 
-  if (country) query.country = country;
+  const query = country ? { country } : {};
 
-  // ✅ Count total documents
   const total = await Visa.countDocuments(query);
 
-  // ✅ Fetch paginated results
   const items = await Visa.find(query)
     .populate("createdBy", "name email")
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit);
 
-  const totalPages = Math.ceil(total / limit);
-
   res.json({
     success: true,
-    count: items.length,
     total,
-    totalPages,
     currentPage: page,
-    limit,
+    totalPages: Math.ceil(total / limit),
     data: items,
   });
 });
