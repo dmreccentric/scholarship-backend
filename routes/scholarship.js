@@ -34,4 +34,7 @@ router.delete(
   scholarshipController.deleteScholarship
 );
 
+router.get("/:id/related", scholarshipController.getRelatedScholarships);
+router.get("/recent/posts", scholarshipController.getRecentPosts);
+
 module.exports = router;

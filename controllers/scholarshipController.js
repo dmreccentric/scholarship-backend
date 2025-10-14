@@ -1,5 +1,6 @@
 const Scholarship = require("../models/Scholarship");
 const asyncHandler = require("../middlewares/asyncHandler");
+const Visa = require("../models/Visa");
 const mongoose = require("mongoose");
 
 // Create scholarship
@@ -146,4 +147,50 @@ exports.deleteScholarship = asyncHandler(async (req, res) => {
   }
 
   res.json({ success: true, message: "Deleted" });
+});
+
+exports.getRelatedScholarships = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const current = await Scholarship.findById(id);
+  if (!current) {
+    const err = new Error("Scholarship not found");
+    err.statusCode = 404;
+    throw err;
+  }
+
+  // find related ones based on category or hostCountry
+  const related = await Scholarship.find({
+    _id: { $ne: id },
+    $or: [{ category: current.category }, { hostCountry: current.hostCountry }],
+  })
+    .sort({ createdAt: -1 })
+    .limit(3)
+    .select("title _id createdAt image");
+
+  res.json({ success: true, data: related });
+});
+
+// ✅ Get recent posts (scholarships + visas)
+exports.getRecentPosts = asyncHandler(async (req, res) => {
+  const [scholarships, visas] = await Promise.all([
+    Scholarship.find({})
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select("title _id createdAt image"),
+    Visa.find({})
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .select("title _id createdAt image"),
+  ]);
+
+  // merge and sort both arrays by date
+  const all = [...scholarships, ...visas].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
+
+  res.json({
+    success: true,
+    data: all.slice(0, 10),
+  });
 });
