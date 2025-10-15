@@ -11,6 +11,7 @@ const scholarshipRoutes = require("./routes/scholarship");
 const visaRoutes = require("./routes/visa");
 const testimonialRoutes = require("./routes/testimonial");
 const clientRoutes = require("./routes/clientRoutes");
+const enquiryRoutes = require("./routes/enquiryRoutes");
 
 const errorHandler = require("./middlewares/errorHandler");
 const corOptions = require("./config/corOptions");
@@ -28,6 +29,7 @@ app.use("/api/scholarships", scholarshipRoutes);
 app.use("/api/visas", visaRoutes);
 app.use("/api/testimonials", testimonialRoutes);
 app.use("/api/clients", clientRoutes);
+app.use("/api/v1/enquiry", enquiryRoutes);
 
 // error handler last
 app.use(errorHandler);
