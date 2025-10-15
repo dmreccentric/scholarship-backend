@@ -29,7 +29,7 @@ app.use("/api/scholarships", scholarshipRoutes);
 app.use("/api/visas", visaRoutes);
 app.use("/api/testimonials", testimonialRoutes);
 app.use("/api/clients", clientRoutes);
-app.use("/api/v1/enquiry", enquiryRoutes);
+app.use("/api/enquiry", enquiryRoutes);
 
 // error handler last
 app.use(errorHandler);
