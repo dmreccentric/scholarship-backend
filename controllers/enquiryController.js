@@ -18,7 +18,7 @@ export const sendEnquiry = async (req, res) => {
 
     await transporter.sendMail({
       from: `"Scholarship Enquiry" <${email}>`,
-      to: "hibasameera08@gmail.com",
+      to: "hibasameera06@gmail.com",
       subject: `Enquiry about ${scholarship}`,
       html: `
   <div style="
